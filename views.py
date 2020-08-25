@@ -51,10 +51,7 @@ def sell_product(product_name):
 def export_items_to_csv():
     form = ProductForm()
     error = ""
-    #items = Product(form.data['name'], form.data['quantity'], form.data['unit'], form.data['unit_price'])
-    #ITEMS[form.data['name']] = Product(form.data['name'], form.data['unit'], form.data['unit_price'], form.data['quantity'])
-    #items = ITEMS[form.data['name']]
-    items = ITEMS[Product]
+    
     if request.method == "POST":
         with open('magazyn.csv', 'w', newline='') as csvfile:
         #with open(sys.argv[1], 'w', newline='') as csvfile:
@@ -62,11 +59,9 @@ def export_items_to_csv():
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
             writer.writeheader()
-            #for item in ITEMS[form.data['name']]:
-            for item in items:
-            #for item in ITEMS(values):
-            #for item in Product(form.data['name'], form.data['quantity'], form.data['unit'], form.data['unit_price']):
-                writer.writerow(item)
+            for item in ITEMS.values():
+                record = {"name" : item.name, "quantity" : item.quantity, "unit": item.unit, "unit_price" : item.unit_price}
+                writer.writerow(record)
         return render_template("product_list.html", form=form, fieldnames=fieldnames, csvfile=csvfile, items=ITEMS, error=error)
     #return "Stock data export completed successfully!"
 
