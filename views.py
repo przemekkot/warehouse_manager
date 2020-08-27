@@ -47,25 +47,77 @@ def sell_product(product_name):
 
 
 # Export do pliku csv
-@app.route('/product_list/', methods=["GET", "POST"])
+@app.route('/product_list/', methods=["POST"])
 def export_items_to_csv():
     form = ProductForm()
     error = ""
-    
     if request.method == "POST":
         with open('magazyn.csv', 'w', newline='') as csvfile:
         #with open(sys.argv[1], 'w', newline='') as csvfile:
             fieldnames = ["name", "quantity", "unit", "unit_price"]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
             writer.writeheader()
             for item in ITEMS.values():
                 record = {"name" : item.name, "quantity" : item.quantity, "unit": item.unit, "unit_price" : item.unit_price}
                 writer.writerow(record)
         return render_template("product_list.html", form=form, fieldnames=fieldnames, csvfile=csvfile, items=ITEMS, error=error)
-    #return "Stock data export completed successfully!"
+    
+
+@app.route('/product_list/', methods=["GET", "POST"])
+def import_items_from_csv():
+    form = ProductForm()
+    error = ""
+    if request.method == "GET":
+        with open('magazyn.csv', newline='') as csvfile:
+            fieldnames = ["name", "quantity", "unit", "unit_price"]
+            reader=csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=',')
+            ITEMS.clear()
+            for row in reader:
+                ITEMS.append(row)
+        return render_template("product_list.html", form=form, fieldnames=fieldnames, csvfile=csvfile, items=ITEMS, error=error, record=record)
 
 
+
+"""
+# Import z pliku csv
+@app.route('/product_list/', methods=["GET"])
+def import_items_from_csv():
+    form = ProductForm()
+    error = ""
+    if request.method == "GET":
+        with open('magazyn.csv', newline='') as csvfile:
+            fieldnames = ["name", "quantity", "unit", "unit_price"]
+            reader=csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=',')
+            for value in ITEMS.values():
+                del value
+            #ITEMS.values().pop()
+            for row in reader:
+                for value in ITEMS.values():
+                    value = row
+                #record = {"name" : reader.name, "quantity" : reader.quantity, "unit": reader.unit, "unit_price" : reader.unit_price}
+                #ITEMS.values().add(row)
+        return render_template("product_list.html", form=form, fieldnames=fieldnames, csvfile=csvfile, items=ITEMS, error=error, row=row, value=value)
+"""
+
+"""
+def load_items_from_csv(items):
+    with open('magazyn.csv', newline='') as csvfile:
+        fieldnames = ["Name","Quantity","Unit","Unit Price (PLN)"]
+        reader=csv.DictReader(csvfile, fieldnames=fieldnames, delimiter=',')
+        items.clear()
+        for row in reader:
+            items.append(row)
+
+def load_items_from_csv():
+    items.clear()
+    with open(sys.argv[1], newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            #print(row['name'], row['quantity'], row['unit'], row['unit_price'])
+            items.append(row)
+"""
+
+#return "Stock data export completed successfully!"
 
 if __name__ == '__main__':
     app.run(debug=True)
